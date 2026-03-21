@@ -51,7 +51,10 @@ public class RepositoryProcesarCustodia {
                 SELECT QUERY_ID, DOCUMENT_CODE
                 FROM COLA_CUSTODIA_DOCUMENTOS
                 WHERE (
-                        ESTADO  IN = ('PTE_CUSTODIA', 'PTE_ENVIO')
+                        (
+                            ESTADO IN ('PTE_CUSTODIA', 'PTE_ENVIO')
+                            AND (NEXT_RETRY IS NULL OR NEXT_RETRY <= ?)
+                        )
                      OR (ESTADO = 'IN_PROGRESS' AND PROCESO_DESDE < ?)
                 )
                 ORDER BY FECHA_ALTA
@@ -71,7 +74,10 @@ public class RepositoryProcesarCustodia {
 
     return template.query(
     	    sqlBloqueo,
-    	    ps -> ps.setObject(1, limiteProceso),
+    	    ps -> {
+                ps.setObject(1, ahora);    
+                ps.setObject(2, limiteProceso);
+            },
     	    (ResultSet rs) -> {
     	        if (!rs.next()) {
     	            return Optional.empty();
@@ -81,7 +87,9 @@ public class RepositoryProcesarCustodia {
     	        doc.setQueryId(rs.getString("QUERY_ID"));
     	        doc.setDocumentCode(rs.getString("DOCUMENT_CODE"));
     	        doc.setNotificationId(rs.getString("NOTIFICATION_ID"));
+    	        doc.setIntentos(rs.getInt("INTENTOS"));
     	        doc.setEstado(rs.getString("ESTADO"));
+    	        doc.setResultadoCustodia(rs.getString("RESULTADO_CUSTODIA"));
     	        doc.setPdfBinario(rs.getBytes("PDF_BINARIO"));
     	        doc.setFechaAlta(rs.getObject("FECHA_ALTA", OffsetDateTime.class));
 
@@ -137,7 +145,6 @@ public class RepositoryProcesarCustodia {
 		entity.setIntentos(entity.getIntentos() +1);
 		entity.setErrorMensaje(stackTraceToString(e, 15));
 		entity.setNextRetry(OffsetDateTime.now().plusHours(1));
-		entity.setEstado("PTE_CUSTODIA");
 		
 		colaCustodiaDocumentosRepository.save(entity);
 		

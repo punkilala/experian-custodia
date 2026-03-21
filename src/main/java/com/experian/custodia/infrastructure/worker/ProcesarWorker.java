@@ -25,7 +25,7 @@ public class ProcesarWorker {
 	
 	
 	public void procesarCustodia (ColaCustodiaDocumentosEntity documento) {
-		if(PTE_CUSTODIA.equals(documento.getEstado())){
+		if(PTE_CUSTODIA.equals(documento.getEstado()) || "IN_PROGRESS".equals(documento.getEstado())){
 			procesarGuardadoGD(documento);
 		}
 		
@@ -85,7 +85,7 @@ public class ProcesarWorker {
 		event.setNotificationId(documento.getNotificationId());
 		event.setOrigen(ORIGEN_CUSTODIA);
 		event.setEventType(EVENT_TYPE);
-		event.setCustodiaDocument(response);
+		event.setEventData(response);
 		
 		orquestadorEventosClient.reenviarEvento(event);
 		repositoryProcesarCustodia.borrarColaWorker(documento);

@@ -12,5 +12,5 @@ public class OrquestadorWebhookEvent {
     private String notificationId;
     private String origen;
     private String eventType;
-    private CustodiaDocumentResponse custodiaDocument;
+    private CustodiaDocumentResponse eventData;
 }

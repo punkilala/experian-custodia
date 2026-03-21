@@ -33,6 +33,7 @@ public class WorkerCustodiaDocumentos {
 		ColaCustodiaDocumentosEntity documento = null;
 		
 		if (System.currentTimeMillis() < WORKER_DORMIDO) {
+			System.out.println("fin worker");
 	        return;
 	    }
 		
@@ -50,7 +51,7 @@ public class WorkerCustodiaDocumentos {
 			
 			
 		} catch (CannotCreateTransactionException | JDBCConnectionException | DataAccessResourceFailureException 
-				|TransientDataAccessResourceException | BadSqlGrammarException | RecoverableDataAccessException e) {
+				|TransientDataAccessResourceException | RecoverableDataAccessException e) {
 			//caida de bdd
 			log.error("BDD no disponible, pausando worker 5 minutos", e);
 			WORKER_DORMIDO = System.currentTimeMillis() + 400000;
@@ -62,6 +63,7 @@ public class WorkerCustodiaDocumentos {
         		//se necesita saber que errores son reintentables o cuales no del gd
         		log.error("ERROR CUSTODIA: err inesperado en worker para {} - {}", documento.getQueryId(), documento.getDocumentCode(), e);
         		repositoryProcesarCustodia.reprogramarCustodia(documento, e);
+        		repositoryProcesarCustodia.registrarErrorCustodia(documento, e);
         	}
         }
 		
