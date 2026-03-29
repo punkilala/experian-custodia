@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.experian.custodia.infrastructure.config.CustodiaProperties;
-import com.experian.custodia.infrastructure.dto.OrquestadorWebhookEvent;
+import com.experian.custodia.infrastructure.dto.CustodiaResultEvent;
 import com.experian.custodia.infrastructure.exceptions.WebclientErrorMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class OrquestadorEventosClient {
 	private final WebClient webClient;
 	private final CustodiaProperties props;
 	
-	public void reenviarEvento(OrquestadorWebhookEvent response) {
+	public void reenviarEvento(CustodiaResultEvent response) {
 		webClient.post()
 			.uri(props.getOrquestador().getBaseUrl() + props.getOrquestador().getEventosUrl())
 			.contentType(MediaType.APPLICATION_JSON)

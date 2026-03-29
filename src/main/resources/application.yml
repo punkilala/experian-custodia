@@ -11,3 +11,9 @@ spring:
 
 server:
   port: 6002
+
+app:
+  kafka:
+    topics:
+      custodia-orden: documento.custodia.orden
+      custodia-resultado: documento.custodia.resultado
