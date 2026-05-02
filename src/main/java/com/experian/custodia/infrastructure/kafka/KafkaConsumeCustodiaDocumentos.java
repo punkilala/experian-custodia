@@ -6,6 +6,7 @@ import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.DltStrategy;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
@@ -39,11 +40,14 @@ public class KafkaConsumeCustodiaDocumentos {
             groupId = "custodia-experian"
     )
     public void listener(String mensaje,
-            @Header(name = KafkaHeaders.RECEIVED_KEY, required = false) String queryId) {
+            @Header(name = KafkaHeaders.RECEIVED_KEY, required = false) String queryId,
+            Acknowledgment ack) {
 		
 		try {
 			CustodiaDocumentoEvent documento = objectMapper.readValue(mensaje, CustodiaDocumentoEvent.class);
 			procesadorCustodiaDocumentos.procesar(documento);
+			
+			ack.acknowledge();
 
 		} catch ( KafkaException e) {
 	        log.error("Error Kafka procesando evento Experian", e);
